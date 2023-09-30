@@ -93,8 +93,31 @@ class ImageDataset_Train():
             n_image2 = self.transform(n_image2)
             n_image3 = self.transform(n_image3)
 
+        if patient_label == 0:
+            random_index = random.randint(0, len(self.norm_train) - 1)
+            pos_img_path = self.crop_path + str(self.norm_train[random_index][0])
+            pos_label = int(self.norm_train[random_index][1])
+        else:
+            random_index = random.randint(0, len(self.abnorm_train) - 1)
+            pos_img_path = self.crop_path + str(self.abnorm_train[random_index][0])
+            pos_label = int(self.norm_train[random_index][1])
 
-        return [image0, image1, image2, image3], label, [n_image0, n_image1, n_image2, n_image3], negative_label
+        pos_imgs_list = os.listdir(pos_img_path)
+        pos_imgs_list.sort()
+        # print('patient_label:',patient_label)
+        p_image0 = Image.open(pos_img_path + '/' + pos_imgs_list[0]).convert('RGB')
+        p_image1 = Image.open(pos_img_path + '/' + pos_imgs_list[1]).convert('RGB')
+        p_image2 = Image.open(pos_img_path + '/' + pos_imgs_list[2]).convert('RGB')
+        p_image3 = Image.open(pos_img_path + '/' + pos_imgs_list[3]).convert('RGB')
+
+        if self.transform:
+            p_image0 = self.transform(p_image0)
+            p_image1 = self.transform(p_image1)
+            p_image2 = self.transform(p_image2)
+            p_image3 = self.transform(p_image3)
+
+
+        return [image0, image1, image2, image3], label, [n_image0, n_image1, n_image2, n_image3], negative_label, [p_image0, p_image1, p_image2, p_image3], pos_label
 
 class ImageDataset():
     def __init__(self, data_list, is_train=True):
