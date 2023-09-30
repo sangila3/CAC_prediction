@@ -74,18 +74,20 @@ for _ in range(10):
         train_total = 0
 
         model.train()        
-        for i, (imgs, train_labels, nega_imgs, train_nega_labels) in enumerate(train_dataloader):
+        for i, (imgs, train_labels, nega_imgs, train_nega_labels, pos_imgs, train_pos_labels) in enumerate(train_dataloader):
             optimizer.zero_grad()
             output = 0
-            features_list, nega_features_list = [], []
+            features_list, nega_features_list, pos_features_list = [], [], []
             
 
             for step, img in enumerate(imgs):
                 img, train_labels = img.to(device), train_labels.to(device)
                 nega_img, train_nega_labels = nega_imgs[step].to(device), train_nega_labels.to(device)
-            
+                pos_img, train_pos_labels = pos_imgs[step].to(device), train_pos_labels.to(device)
+
                 features_list.append(model(img))
                 nega_features_list.append(model(nega_img).detach())
+                pos_features_list.append(model(pos_img).detach())
 
                 output += torch.sigmoid(features_list[step])
             outputs = output / 4
@@ -97,9 +99,8 @@ for _ in range(10):
             negative_loss, positive_loss = 0, 0
             for k in range(len(features_list)):
                 negative_loss += distance_criterion(features_list[k], nega_features_list[k])
-            
-            positive_loss += distance_criterion(features_list[0], features_list[1])
-            positive_loss += distance_criterion(features_list[2], features_list[3])
+                positive_loss += distance_criterion(features_list[k], pos_features_list[k])
+
             contrastive_loss = torch.relu(positive_loss - negative_loss).mean()
             
             train_loss = bce_loss + contrastive_loss
