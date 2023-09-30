@@ -1,5 +1,5 @@
 # CAC_prediction
-This repository provides a PyTorch implementation of the CAC prediction method.
+This repository provides a PyTorch implementation of the CAC prediction method based on contrastive learning with both positive and negative pairs.
 The code runs on python 3.7, pytorch 1.3.1, and torchvision 0.4.2.
 
 Step:
